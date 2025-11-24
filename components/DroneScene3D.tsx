@@ -27,13 +27,7 @@ export function DroneScene3D({ drones, time }: DroneScene3DProps) {
       gl={{ antialias: true, alpha: true }}
       dpr={[1, 2]}
     >
-      <DroneSceneContent
-        drones={sceneDrones}
-        time={time}
-        THREE={THREE}
-        Text={Text3D}
-        OrbitControls={OrbitControls}
-      />
+      <DroneSceneContent drones={sceneDrones} time={time} />
     </Canvas>
   );
 }
@@ -59,18 +53,34 @@ function DroneSceneContent({
 
       {/* Grid */}
       {Array.from({ length: 20 }).map((_, i) => (
-        <line key={`h-${i}`} points={[
-          new THREE.Vector3(-10, 0.01, -10 + i),
-          new THREE.Vector3(10, 0.01, -10 + i)
-        ]}>
+        <line key={`h-${i}`}>
+          <bufferGeometry>
+            <bufferAttribute
+              attach="attributes-position"
+              count={2}
+              array={new Float32Array([
+                -10, 0.01, -10 + i,
+                10, 0.01, -10 + i
+              ])}
+              itemSize={3}
+            />
+          </bufferGeometry>
           <lineBasicMaterial color="#333366" />
         </line>
       ))}
       {Array.from({ length: 20 }).map((_, i) => (
-        <line key={`v-${i}`} points={[
-          new THREE.Vector3(-10 + i, 0.01, -10),
-          new THREE.Vector3(-10 + i, 0.01, 10)
-        ]}>
+        <line key={`v-${i}`}>
+          <bufferGeometry>
+            <bufferAttribute
+              attach="attributes-position"
+              count={2}
+              array={new Float32Array([
+                -10 + i, 0.01, -10,
+                -10 + i, 0.01, 10
+              ])}
+              itemSize={3}
+            />
+          </bufferGeometry>
           <lineBasicMaterial color="#333366" />
         </line>
       ))}
@@ -127,10 +137,18 @@ function DroneSceneContent({
             )}
             {/* Path line */}
             {drone.status === 'flying' && (
-              <line points={[
-                new THREE.Vector3(...drone.position),
-                new THREE.Vector3(...drone.target)
-              ]}>
+              <line>
+                <bufferGeometry>
+                  <bufferAttribute
+                    attach="attributes-position"
+                    count={2}
+                    array={new Float32Array([
+                      drone.position[0], drone.position[1], drone.position[2],
+                      drone.target[0], drone.target[1], drone.target[2]
+                    ])}
+                    itemSize={3}
+                  />
+                </bufferGeometry>
                 <lineBasicMaterial color="#00ff00" opacity={0.5} transparent />
               </line>
             )}
@@ -152,4 +170,3 @@ function DroneSceneContent({
     </>
   );
 }
-
