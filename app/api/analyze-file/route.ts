@@ -60,8 +60,10 @@ export async function POST(request: NextRequest) {
         console.log('Word parsed, content length:', textContent.length);
       } else if (fileType.includes('pdf') || fileName.endsWith('.pdf')) {
         console.log('Parsing PDF file...');
+        // Corrected PDF parsing - handle both CJS and ESM exports
         const pdfParse = await import('pdf-parse');
-        const data = await pdfParse.default(buffer);
+        const parsePdf = (pdfParse as any).default || pdfParse;
+        const data = await parsePdf(buffer);
         textContent = data.text;
         fileType = 'pdf';
         console.log('PDF parsed, content length:', textContent.length);
@@ -172,4 +174,3 @@ Format la réponse en JSON avec cette structure:
     );
   }
 }
-
