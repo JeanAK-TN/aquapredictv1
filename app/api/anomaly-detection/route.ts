@@ -2,10 +2,12 @@ import { NextRequest, NextResponse } from 'next/server';
 
 export const runtime = 'edge';
 
+type Severity = 'low' | 'medium' | 'high' | 'critical';
+
 interface AnomalyAlert {
   id: string;
   type: 'unknown_pathogen' | 'chemical_spike' | 'pattern_anomaly' | 'sensor_failure' | 'unusual_flow';
-  severity: 'low' | 'medium' | 'high' | 'critical';
+  severity: Severity;
   location: {
     lat: number;
     lng: number;
@@ -19,31 +21,35 @@ interface AnomalyAlert {
   relatedSensors: string[];
 }
 
-const ANOMALY_TYPES = [
+const ANOMALY_TYPES: Array<{
+  type: 'unknown_pathogen' | 'chemical_spike' | 'pattern_anomaly' | 'sensor_failure' | 'unusual_flow';
+  description: string;
+  baseSeverity: Severity;
+}> = [
   {
-    type: 'unknown_pathogen' as const,
+    type: 'unknown_pathogen',
     description: 'Unknown pathogen signature detected',
-    baseSeverity: 'high' as const
+    baseSeverity: 'high'
   },
   {
-    type: 'chemical_spike' as const,
+    type: 'chemical_spike',
     description: 'Unusual chemical compound detected',
-    baseSeverity: 'medium' as const
+    baseSeverity: 'medium'
   },
   {
-    type: 'pattern_anomaly' as const,
+    type: 'pattern_anomaly',
     description: 'Abnormal data pattern detected',
-    baseSeverity: 'medium' as const
+    baseSeverity: 'medium'
   },
   {
-    type: 'sensor_failure' as const,
+    type: 'sensor_failure',
     description: 'Sensor reading inconsistency',
-    baseSeverity: 'low' as const
+    baseSeverity: 'low'
   },
   {
-    type: 'unusual_flow' as const,
+    type: 'unusual_flow',
     description: 'Unusual water flow pattern',
-    baseSeverity: 'medium' as const
+    baseSeverity: 'medium'
   }
 ];
 
@@ -61,9 +67,9 @@ function generateAnomaly(): AnomalyAlert {
   
   // Random severity escalation
   const severityRoll = Math.random();
-  let severity = anomalyType.baseSeverity;
+  let severity: Severity = anomalyType.baseSeverity;
   if (severityRoll > 0.7 && anomalyType.baseSeverity !== 'critical') {
-    const levels: ('low' | 'medium' | 'high' | 'critical')[] = ['low', 'medium', 'high', 'critical'];
+    const levels: Severity[] = ['low', 'medium', 'high', 'critical'];
     const currentIndex = levels.indexOf(anomalyType.baseSeverity);
     severity = levels[Math.min(levels.length - 1, currentIndex + 1)];
   }
@@ -172,4 +178,3 @@ export async function POST(request: NextRequest) {
     );
   }
 }
-
